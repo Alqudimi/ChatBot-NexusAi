@@ -15,6 +15,7 @@ from pydantic import BaseModel
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException, Response
 from dotenv import load_dotenv
+import re
 # Initialize FastAPI app
 load_dotenv()
 app = FastAPI(title="تكنو - مساعد تعليم اللغة الإنجليزية", version="1.0.0")
@@ -123,6 +124,38 @@ def initialize_gemini_model():
         print(f"Error initializing Gemini model: {e}")
         return None
 
+
+
+def remove_markdown_formatting(text: str) -> str:
+    """
+    إزالة تنسيق Markdown من النص وإرجاع نص عادي
+    """
+    if not text:
+        return text
+    
+    # إزالة النجمة المزدوجة **text** → text
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+    
+    # إزالة النجمة المفردة *text* → text
+    text = re.sub(r'\*(.*?)\*', r'\1', text)
+    
+    # إزالة التسطير __text__ → text
+    text = re.sub(r'__(.*?)__', r'\1', text)
+    
+    # إزالة التسطير _text_ → text
+    text = re.sub(r'_(.*?)_', r'\1', text)
+    
+    # إزالة الرموز الأخرى مثل ~~text~~ → text
+    text = re.sub(r'~~(.*?)~~', r'\1', text)
+    
+    # إزالة الرموز الخاصة الأخرى
+    text = re.sub(r'`(.*?)`', r'\1', text)
+    
+    # تنظيف المسافات الزائدة الناتجة عن الإزالة
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+
 def get_gemini_response(user_message: str, conversation) -> str:
     """Get response from Gemini API with error handling"""
     try:
@@ -131,8 +164,14 @@ def get_gemini_response(user_message: str, conversation) -> str:
         
         response = conversation.send_message(full_message)
         response_text = response.text
-        print(response_text)
-        return response_text
+        response_text = response.text
+        print("النص الأصلي من Gemini:", response_text)
+        
+        # إزالة تنسيق Markdown
+        clean_text = remove_markdown_formatting(response_text)
+        print("النص بعد التنظيف:", clean_text)
+        
+        return clean_text
         
     except Exception as e:
         print(f"Gemini API error: {e}")
