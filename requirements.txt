@@ -2,8 +2,9 @@ fastapi
 uvicorn
 pydantic
 python-multipart
-torch
-transformers
 accelerate
 python-dotenv
 pathlib2
+google-generativeai
+aiofiles
+python-dateutil
