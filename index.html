@@ -863,6 +863,8 @@
         let recognition = null;
         let audioContext = null;
         let audioElement = null;
+        let isSpeaking = false;
+        let speechQueue = [];
 
         // بدء التطبيق
         document.addEventListener('DOMContentLoaded', function() {
@@ -1041,36 +1043,170 @@
             }
         }
 
-        // تحويل النص إلى كلام
-        function textToSpeech(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'ar-SA'; // اللغة العربية - السعودية
-                utterance.rate = 1.0;
-                utterance.pitch = 1.0;
-                utterance.volume = 1.0;
-                
-                // إضافة تأثير صوتي أثناء التحدث
-                document.body.classList.add('audio-playing');
-                
-                utterance.onstart = function() {
-                    console.log('🔊 بدء تحويل النص إلى كلام');
-                };
-                
-                utterance.onend = function() {
-                    console.log('⏹️ انتهى تحويل النص إلى كلام');
-                    document.body.classList.remove('audio-playing');
-                };
-                
-                utterance.onerror = function(event) {
-                    console.error('❌ خطأ في تحويل النص إلى كلام:', event.error);
-                    document.body.classList.remove('audio-playing');
-                };
-                
-                speechSynthesis.speak(utterance);
+        // دالة مساعدة للكشف عن اللغة
+        function detectLanguage(text) {
+            // نمط للكلمات الإنجليزية (أحرف لاتينية)
+            const englishPattern = /[a-zA-Z]/;
+            // نمط للكلمات العربية (أحرف عربية)
+            const arabicPattern = /[\u0600-\u06FF]/;
+            
+            if (englishPattern.test(text) && arabicPattern.test(text)) {
+                return 'mixed';
+            } else if (englishPattern.test(text)) {
+                return 'english';
+            } else if (arabicPattern.test(text)) {
+                return 'arabic';
             } else {
-                console.error('❌ المتصفح لا يدعم تحويل النص إلى كلام');
+                return 'unknown';
             }
+        }
+
+        // تقسيم النص إلى أجزاء حسب اللغة
+        function splitTextByLanguage(text) {
+            const segments = [];
+            let currentSegment = '';
+            let currentLanguage = null;
+            
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const charLanguage = detectLanguage(char);
+                
+                if (currentLanguage === null) {
+                    currentLanguage = charLanguage;
+                    currentSegment += char;
+                } else if (charLanguage === currentLanguage || charLanguage === 'unknown') {
+                    currentSegment += char;
+                } else {
+                    // تغيير اللغة، حفظ المقطع الحالي وبدء مقطع جديد
+                    if (currentSegment.trim()) {
+                        segments.push({
+                            text: currentSegment.trim(),
+                            language: currentLanguage
+                        });
+                    }
+                    currentSegment = char;
+                    currentLanguage = charLanguage;
+                }
+            }
+            
+            // إضافة المقطع الأخير
+            if (currentSegment.trim()) {
+                segments.push({
+                    text: currentSegment.trim(),
+                    language: currentLanguage
+                });
+            }
+            
+            return segments;
+        }
+
+        // تحويل النص إلى كلام مع دعم اللغتين
+        function textToSpeech(text) {
+            if (!('speechSynthesis' in window)) {
+                console.error('❌ المتصفح لا يدعم تحويل النص إلى كلام');
+                return;
+            }
+            
+            // إلغاء أي كلام جاري
+            speechSynthesis.cancel();
+            
+            // تقسيم النص إلى أجزاء حسب اللغة
+            const segments = splitTextByLanguage(text);
+            console.log('📝 مقاطع النص:', segments);
+            
+            if (segments.length === 0) return;
+            
+            // إضافة تأثير صوتي أثناء التحدث
+            document.body.classList.add('audio-playing');
+            isSpeaking = true;
+            
+            // تشغيل المقاطع بالتسلسل
+            playSegmentsSequentially(segments, 0);
+        }
+
+        // تشغيل المقاطع بالتسلسل
+        function playSegmentsSequentially(segments, index) {
+            if (index >= segments.length) {
+                // انتهى الكلام
+                document.body.classList.remove('audio-playing');
+                isSpeaking = false;
+                return;
+            }
+            
+            const segment = segments[index];
+            console.log(`🔊 تشغيل المقطع ${index + 1}/${segments.length}:`, segment);
+            
+            const utterance = new SpeechSynthesisUtterance(segment.text);
+            
+            // تعيين اللغة المناسبة لكل مقطع
+            if (segment.language === 'english' || segment.language === 'mixed') {
+                utterance.lang = 'en-US'; // الإنجليزية
+                utterance.rate = 0.9; // أبطأ قليلاً للوضوح
+            } else {
+                utterance.lang = 'ar-SA'; // العربية
+                utterance.rate = 0.8; // أبطأ للعربية للوضوح
+            }
+            
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            utterance.onend = function() {
+                console.log(`✅ انتهى المقطع ${index + 1}`);
+                // تشغيل المقطع التالي بعد انتهاء الحالي
+                setTimeout(() => {
+                    playSegmentsSequentially(segments, index + 1);
+                }, 300); // تأخير بسيط بين المقاطع
+            };
+            
+            utterance.onerror = function(event) {
+                console.error(`❌ خطأ في المقطع ${index + 1}:`, event.error);
+                // الاستمرار بالمقطع التالي رغم الخطأ
+                setTimeout(() => {
+                    playSegmentsSequentially(segments, index + 1);
+                }, 300);
+            };
+            
+            // محاولة اختيار صوت أفضل للغة
+            selectBestVoice(utterance);
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        // اختيار أفضل صوت متاح للغة
+        function selectBestVoice(utterance) {
+            const voices = speechSynthesis.getVoices();
+            const desiredLang = utterance.lang;
+            
+            // البحث عن صوت يطابق اللغة المطلوبة
+            const matchingVoices = voices.filter(voice => voice.lang.startsWith(desiredLang));
+            
+            if (matchingVoices.length > 0) {
+                // تفضيل الأصوات عالية الجودة
+                const preferredVoice = matchingVoices.find(voice => 
+                    voice.name.includes('Google') || 
+                    voice.name.includes('Microsoft') ||
+                    voice.name.includes('Natural')
+                ) || matchingVoices[0];
+                
+                utterance.voice = preferredVoice;
+                console.log(`🎙️ صوت مختار: ${preferredVoice.name} (${preferredVoice.lang})`);
+            } else {
+                console.warn(`⚠️ لا توجد أصوات متاحة للغة ${desiredLang}`);
+            }
+        }
+
+        // التأكد من تحميل الأصوات قبل الاستخدام
+        function loadVoices() {
+            return new Promise((resolve) => {
+                const voices = speechSynthesis.getVoices();
+                if (voices.length !== 0) {
+                    resolve(voices);
+                } else {
+                    speechSynthesis.addEventListener('voiceschanged', function() {
+                        resolve(speechSynthesis.getVoices());
+                    });
+                }
+            });
         }
 
         // إرسال رسالة
@@ -1231,6 +1367,13 @@
         function sendQuickReply(message) {
             sendMessage(message);
         }
+
+        // تحميل الأصوات عند بدء التشغيل
+        window.addEventListener('load', function() {
+            loadVoices().then(voices => {
+                console.log('✅ الأصوات المتاحة:', voices.map(v => `${v.name} (${v.lang})`));
+            });
+        });
 
         // معالجات الأحداث
         document.getElementById('sendBtn').addEventListener('click', function() {
