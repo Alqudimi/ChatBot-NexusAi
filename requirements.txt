@@ -1,0 +1,9 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.5.0
+python-multipart==0.0.6
+torch==2.0.1
+transformers==4.35.2
+accelerate==0.24.1
+python-dotenv==1.0.0
+pathlib2==2.3.7.post1

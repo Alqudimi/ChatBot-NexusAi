@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تكنو - مساعد تعليم اللغة الإنجليزية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-cyan: #0ff0fc;
+            --neon-pink: #ff00ff;
+            --neon-purple: #8a2be2;
+            --deep-space: #0a0a1f;
+            --cosmic-purple: #1a1a2e;
+            --stardust: #e6e6ff;
+            --galaxy-gradient: linear-gradient(135deg, #0a0a1f 0%, #1a1a2e 50%, #16213e 100%);
+            --nebula-gradient: linear-gradient(45deg, #ff00ff, #8a2be2, #0ff0fc);
+            --pulse-animation: pulse 2s infinite;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: var(--galaxy-gradient);
+            min-height: 100vh;
+            color: var(--stardust);
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.8;
+            text-align: right;
+            font-feature-settings: "calt" 1;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(138, 43, 226, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        .chat-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: rgba(10, 10, 31, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            box-shadow: 
+                0 0 30px rgba(255, 0, 255, 0.2),
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--nebula-gradient);
+            opacity: 0.1;
+            animation: rotate 30s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .chat-header {
+            background: rgba(26, 26, 46, 0.8);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chat-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--nebula-gradient);
+            animation: slide 3s linear infinite;
+        }
+        
+        @keyframes slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .bot-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .bot-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--nebula-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .bot-avatar::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: var(--nebula-gradient);
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.7;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(5deg); }
+            66% { transform: translateY(5px) rotate(-5deg); }
+        }
+        
+        .bot-avatar i {
+            font-size: 28px;
+            color: white;
+        }
+        
+        .bot-name {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--nebula-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+        }
+        
+        .bot-status {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--neon-cyan);
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            margin-left: 8px;
+            box-shadow: 0 0 10px var(--neon-cyan);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
+        }
+        
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--stardust);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .chat-body {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.03) 0%, transparent 50%);
+        }
+        
+        .message {
+            max-width: 75%;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 20px;
+            position: relative;
+            animation: messageAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            word-wrap: break-word;
+            word-break: break-word;
+            line-height: 1.6;
+        }
+        
+        @keyframes messageAppear {
+            0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        .bot-message {
+            background: rgba(26, 26, 46, 0.6);
+            align-self: flex-start;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.2), rgba(138, 43, 226, 0.3));
+            align-self: flex-end;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 5px 15px rgba(255, 0, 255, 0.2);
+        }
+        
+        .message-content {
+            font-size: 16px;
+            line-height: 1.6;
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .message-content p {
+            margin: 0;
+            padding: 0;
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+            line-height: 1.6;
+        }
+        
+        .message-time {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 8px;
+            text-align: left;
+        }
+        
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(26, 26, 46, 0.6);
+            padding: 12px 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            align-self: flex-start;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .typing-text {
+            margin-left: 10px;
+            font-size: 14px;
+            color: var(--neon-cyan);
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        .chat-footer {
+            padding: 20px;
+            background: rgba(26, 26, 46, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .message-input-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .message-input {
+            width: 100%;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 15px 50px 15px 20px;
+            outline: none;
+            transition: all 0.3s ease;
+            color: var(--stardust);
+            font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+            direction: rtl;
+        }
+        
+        .message-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 2px rgba(255, 0, 255, 0.3);
+        }
+        
+        .message-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+            direction: rtl;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .send-btn, .voice-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: var(--nebula-gradient);
+            color: white;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 0, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .send-btn::before, .voice-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .send-btn:hover::before, .voice-btn:hover::before {
+            left: 100%;
+        }
+        
+        .send-btn:hover, .voice-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 0, 255, 0.5);
+        }
+        
+        .voice-btn.listening {
+            animation: pulse-btn 1.5s infinite;
+            background: linear-gradient(135deg, #ff0000, #ff6b6b);
+        }
+        
+        @keyframes pulse-btn {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+        
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-reply {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 10px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            text-align: center;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .quick-reply:hover {
+            background: rgba(255, 0, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 0, 255, 0.2);
+        }
+        
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .suggestion {
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--neon-cyan);
+            border-radius: 15px;
+            padding: 6px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        
+        .suggestion:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .voice-visualizer {
+            display: flex;
+            align-items: flex-end;
+            height: 40px;
+            margin-bottom: 15px;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .voice-bar {
+            width: 5px;
+            background: var(--nebula-gradient);
+            border-radius: 3px;
+            transition: height 0.1s ease;
+        }
+        
+        /* تأثيرات دخول الصفحة */
+        .welcome-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--galaxy-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .welcome-logo {
+            font-size: 70px;
+            margin-bottom: 20px;
+            background: var(--nebula-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: bounce 1.5s ease infinite alternate;
+            text-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-20px) scale(1.05); }
+        }
+        
+        .welcome-text {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.6;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .loading-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            background: var(--nebula-gradient);
+            width: 0%;
+            animation: loading 2s ease-in-out forwards;
+        }
+        
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        /* أنماط للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .chat-container {
+                margin: 0;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .chat-header {
+                padding: 15px;
+            }
+            
+            .bot-avatar {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .bot-name {
+                font-size: 20px;
+            }
+            
+            .chat-body {
+                padding: 15px;
+            }
+            
+            .chat-footer {
+                padding: 15px;
+            }
+            
+            .welcome-logo {
+                font-size: 50px;
+            }
+            
+            .welcome-text {
+                font-size: 18px;
+                padding: 0 20px;
+            }
+        }
+        
+        /* تأثيرات إضافية */
+        .message::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 15px;
+            height: 15px;
+            background: inherit;
+        }
+        
+        .bot-message::after {
+            left: -8px;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        
+        .user-message::after {
+            right: -8px;
+            clip-path: polygon(0 0, 0 100%, 100% 0);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--neon-cyan);
+            backdrop-filter: blur(10px);
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification i {
+            margin-left: 10px;
+            color: var(--neon-cyan);
+        }
+        
+        /* تأثيرات الجسيمات */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: particle-float 10s infinite linear;
+        }
+        
+        @keyframes particle-float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        /* أنماط إضافية للوضع الصوتي */
+        .voice-mode-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 31, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .voice-mode-indicator.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        
+        .voice-mode-icon {
+            font-size: 60px;
+            color: var(--neon-cyan);
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        .voice-mode-text {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .voice-mode-subtext {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+        
+        .audio-playing .bot-avatar {
+            animation: audio-pulse 1s infinite;
+        }
+        
+        @keyframes audio-pulse {
+            0% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.5); }
+        }
+    </style>
+</head>
+<body>
+    <!-- تأثير النجوم -->
+    <div class="stars" id="starsContainer"></div>
+    
+    <!-- تأثير الجسيمات -->
+    <div class="particles" id="particlesContainer"></div>
+    
+    <!-- مؤشر الوضع الصوتي -->
+    <div class="voice-mode-indicator" id="voiceModeIndicator">
+        <div class="voice-mode-icon">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <div class="voice-mode-text">وضع المحادثة الصوتية</div>
+        <div class="voice-mode-subtext">اضغط على زر الميكروفون للتحدث</div>
+    </div>
+    
+    <!-- رسالة ترحيب مع تأثيرات دخول -->
+    <div class="welcome-animation" id="welcomeAnimation">
+        <div class="welcome-logo">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h2 class="welcome-text">تكنو - مساعد تعليم اللغة الإنجليزية</h2>
+        <p>جاري تهيئة النظام...</p>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+
+    <!-- إشعارات -->
+    <div class="notification" id="voiceNotification">
+        <i class="fas fa-microphone"></i>
+        <span>جاري الاستماع إلى صوتك...</span>
+    </div>
+
+    <!-- حاوية الشات الرئيسية -->
+    <div class="chat-container">
+        <!-- رأس الشات -->
+        <div class="chat-header">
+            <div class="bot-info">
+                <div class="bot-avatar">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h3 class="bot-name">تكنو</h3>
+                    <div class="bot-status">
+                        <span class="status-dot"></span>
+                        <span>مساعد تعليم اللغة الإنجليزية للمبتدئين</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-controls">
+                <button class="control-btn" id="themeToggle"><i class="fas fa-palette"></i></button>
+                <button class="control-btn" id="settingsBtn"><i class="fas fa-cog"></i></button>
+                <button class="control-btn" id="clearChat"><i class="fas fa-trash"></i></button>
+                <button class="control-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></button>
+            </div>
+        </div>
+
+        <!-- جسم الشات -->
+        <div class="chat-body" id="chatBody">
+            <!-- رسائل سابقة -->
+            <div class="message bot-message">
+                <div class="message-content">
+                    <p>مرحباً! أنا تكنو، مساعدك الذكي لتعلم اللغة الإنجليزية. أنا دكتور لغات متخصص في تعليم الإنجليزية للمبتدئين الناطقين بالعربية. كيف يمكنني مساعدتك اليوم؟</p>
+                </div>
+                <div class="message-time">الآن</div>
+            </div>
+
+            <!-- اقتراحات سريعة -->
+            <div class="quick-replies">
+                <div class="quick-reply" onclick="sendQuickReply('كيف أبدأ تعلم الإنجليزية؟')">كيف أبدأ تعلم الإنجليزية؟</div>
+                <div class="quick-reply" onclick="sendQuickReply('أريد تعلم القواعد الأساسية')">أريد تعلم القواعد الأساسية</div>
+                <div class="quick-reply" onclick="sendQuickReply('أحتاج مساعدة في النطق')">أحتاج مساعدة في النطق</div>
+            </div>
+        </div>
+
+        <!-- فووتر الشات -->
+        <div class="chat-footer">
+            <div class="voice-visualizer" id="voiceVisualizer" style="display: none;">
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+            </div>
+            
+            <div class="message-input-container">
+                <input type="text" class="message-input" id="messageInput" placeholder="اكتب رسالتك هنا أو استخدم الميكروفون..." />
+            </div>
+            
+            <button class="voice-btn" id="voiceBtn">
+                <i class="fas fa-microphone"></i>
+            </button>
+            
+            <button class="send-btn" id="sendBtn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // متغيرات عامة
+        const API_BASE = '/api';
+        let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+        let websocket = null;
+        let recognition = null;
+        let audioContext = null;
+        let audioElement = null;
+
+        // بدء التطبيق
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('welcomeAnimation').style.display = 'none';
+                createStars();
+                createParticles();
+                initializeWebSocket();
+                initializeSpeechRecognition();
+                showVoiceModeIndicator();
+                
+                // اختبار الاتصال بالخادم
+                testServerConnection();
+            }, 3000);
+        });
+
+        // اختبار الاتصال بالخادم
+        async function testServerConnection() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                console.log('✅ اتصال الخادم:', data);
+                
+                // تحديث حالة الخادم في الواجهة
+                const statusElement = document.querySelector('.bot-status span:last-child');
+                if (statusElement && data.status === 'healthy') {
+                    statusElement.textContent = 'متصل - جاهز للمساعدة في تعلم الإنجليزية';
+                }
+            } catch (error) {
+                console.error('❌ خطأ في الاتصال بالخادم:', error);
+                const statusElement = document.querySelector('.bot-status span:last-child');
+                if (statusElement) {
+                    statusElement.textContent = 'غير متصل - تحقق من الاتصال بالخادم';
+                    statusElement.style.color = '#ff6b6b';
+                }
+            }
+        }
+
+        // إنشاء النجوم
+        function createStars() {
+            const starsContainer = document.getElementById('starsContainer');
+            for(let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 5 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // إنشاء الجسيمات
+        function createParticles() {
+            const particlesContainer = document.getElementById('particlesContainer');
+            for(let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // تهيئة WebSocket
+        function initializeWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            
+            websocket = new WebSocket(wsUrl);
+            
+            websocket.onopen = function(event) {
+                console.log('✅ اتصال WebSocket مفتوح');
+                showNotification('تم الاتصال بالخادم بنجاح');
+            };
+            
+            websocket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'text_response') {
+                    hideTypingIndicator();
+                    addMessage(data.message, 'bot');
+                    
+                    // تحويل النص إلى صوت
+                    textToSpeech(data.message);
+                } else if (data.type === 'error') {
+                    hideTypingIndicator();
+                    addMessage(data.message, 'bot');
+                }
+            };
+            
+            websocket.onclose = function(event) {
+                console.log('❌ اتصال WebSocket مغلق');
+                showNotification('انقطع الاتصال بالخادم، جاري إعادة المحاولة...');
+                setTimeout(initializeWebSocket, 3000); // إعادة المحاولة
+            };
+            
+            websocket.onerror = function(event) {
+                console.error('❌ خطأ في WebSocket:', event);
+                showNotification('حدث خطأ في الاتصال بالخادم');
+            };
+        }
+
+        // تهيئة نظام التعرف على الكلام
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'ar-SA'; // اللغة العربية - السعودية
+                
+                recognition.onstart = function() {
+                    console.log('🎤 بدء التعرف على الكلام');
+                    showNotification('جاري الاستماع إلى صوتك...');
+                };
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    console.log('✅ نص معترف به:', transcript);
+                    
+                    // إرسال النص إلى الشات
+                    sendMessage(transcript);
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('❌ خطأ في التعرف على الكلام:', event.error);
+                    showNotification('حدث خطأ في التعرف على الصوت');
+                };
+                
+                recognition.onend = function() {
+                    console.log('⏹️ انتهى التعرف على الكلام');
+                    hideNotification();
+                    
+                    // إعادة تشغيل التعرف إذا كنا في وضع التسجيل
+                    if (isRecording) {
+                        setTimeout(() => {
+                            recognition.start();
+                        }, 500);
+                    }
+                };
+            } else {
+                console.error('❌ المتصفح لا يدعم التعرف على الكلام');
+                showNotification('المتصفح لا يدعم التعرف على الصوت');
+            }
+        }
+
+        // بدء التعرف على الكلام
+        function startSpeechRecognition() {
+            if (recognition && !isRecording) {
+                isRecording = true;
+                recognition.start();
+                
+                const voiceBtn = document.getElementById('voiceBtn');
+                voiceBtn.classList.add('listening');
+                voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                
+                document.getElementById('voiceVisualizer').style.display = 'flex';
+                animateVoiceVisualizer();
+            }
+        }
+
+        // إيقاف التعرف على الكلام
+        function stopSpeechRecognition() {
+            if (recognition && isRecording) {
+                isRecording = false;
+                recognition.stop();
+                
+                const voiceBtn = document.getElementById('voiceBtn');
+                voiceBtn.classList.remove('listening');
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                
+                document.getElementById('voiceVisualizer').style.display = 'none';
+                hideNotification();
+            }
+        }
+
+        // تحويل النص إلى كلام
+        function textToSpeech(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA'; // اللغة العربية - السعودية
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                
+                // إضافة تأثير صوتي أثناء التحدث
+                document.body.classList.add('audio-playing');
+                
+                utterance.onstart = function() {
+                    console.log('🔊 بدء تحويل النص إلى كلام');
+                };
+                
+                utterance.onend = function() {
+                    console.log('⏹️ انتهى تحويل النص إلى كلام');
+                    document.body.classList.remove('audio-playing');
+                };
+                
+                utterance.onerror = function(event) {
+                    console.error('❌ خطأ في تحويل النص إلى كلام:', event.error);
+                    document.body.classList.remove('audio-playing');
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                console.error('❌ المتصفح لا يدعم تحويل النص إلى كلام');
+            }
+        }
+
+        // إرسال رسالة
+        async function sendMessage(message) {
+            if (!message.trim()) return;
+            
+            addMessage(message, 'user');
+            showTypingIndicator();
+            
+            // محاولة إرسال عبر WebSocket أولاً
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                try {
+                    websocket.send(JSON.stringify({
+                        type: "text",
+                        message: message
+                    }));
+                    return;
+                } catch (error) {
+                    console.error('❌ خطأ في إرسال WebSocket:', error);
+                }
+            }
+            
+            // Fallback إلى API REST
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                hideTypingIndicator();
+                addMessage(data.response, 'bot');
+                
+                // تحويل الرد إلى صوت
+                textToSpeech(data.response);
+            } catch (error) {
+                console.error('❌ خطأ في إرسال الرسالة:', error);
+                hideTypingIndicator();
+                addMessage('عذراً، حدث خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.', 'bot');
+            }
+        }
+
+        // إضافة رسالة للشات
+        function addMessage(content, sender) {
+            const chatBody = document.getElementById('chatBody');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const time = new Date().toLocaleTimeString('ar', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <p>${content}</p>
+                </div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // عرض مؤشر الكتابة
+        function showTypingIndicator() {
+            const chatBody = document.getElementById('chatBody');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <span class="typing-text">تكنو يكتب...</span>
+            `;
+            chatBody.appendChild(typingDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // إخفاء مؤشر الكتابة
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // تشغيل الصوت
+        function playAudio(audioUrl) {
+            if (!audioElement) {
+                audioElement = new Audio();
+            }
+            
+            audioElement.src = audioUrl;
+            audioElement.play().catch(error => {
+                console.error('❌ خطأ في تشغيل الصوت:', error);
+            });
+            
+            // إضافة تأثير صوتي أثناء التشغيل
+            document.body.classList.add('audio-playing');
+            audioElement.onended = function() {
+                document.body.classList.remove('audio-playing');
+            };
+        }
+
+        // تحريك مؤشر الصوت
+        function animateVoiceVisualizer() {
+            const bars = document.querySelectorAll('.voice-bar');
+            bars.forEach((bar, index) => {
+                setInterval(() => {
+                    if (isRecording) {
+                        const height = Math.random() * 30 + 5;
+                        bar.style.height = height + 'px';
+                    }
+                }, 100 + index * 50);
+            });
+        }
+
+        // عرض الإشعار
+        function showNotification(message) {
+            const notification = document.getElementById('voiceNotification');
+            notification.querySelector('span').textContent = message;
+            notification.classList.add('show');
+            
+            // إخفاء الإشعار تلقائياً بعد 3 ثوان
+            setTimeout(() => {
+                hideNotification();
+            }, 3000);
+        }
+
+        // إخفاء الإشعار
+        function hideNotification() {
+            const notification = document.getElementById('voiceNotification');
+            notification.classList.remove('show');
+        }
+
+        // عرض مؤشر الوضع الصوتي
+        function showVoiceModeIndicator() {
+            const indicator = document.getElementById('voiceModeIndicator');
+            indicator.classList.add('active');
+            
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 3000);
+        }
+
+        // الردود السريعة
+        function sendQuickReply(message) {
+            sendMessage(message);
+        }
+
+        // معالجات الأحداث
+        document.getElementById('sendBtn').addEventListener('click', function() {
+            const input = document.getElementById('messageInput');
+            sendMessage(input.value);
+            input.value = '';
+        });
+
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage(this.value);
+                this.value = '';
+            }
+        });
+
+        document.getElementById('voiceBtn').addEventListener('click', function() {
+            if (isRecording) {
+                stopSpeechRecognition();
+            } else {
+                startSpeechRecognition();
+            }
+        });
+
+        // مسح المحادثة
+        document.getElementById('clearChat').addEventListener('click', function() {
+            const chatBody = document.getElementById('chatBody');
+            chatBody.innerHTML = `
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <p>مرحباً! أنا تكنو، مساعدك الذكي لتعلم اللغة الإنجليزية. أنا دكتور لغات متخصص في تعليم الإنجليزية للمبتدئين الناطقين بالعربية. كيف يمكنني مساعدتك اليوم؟</p>
+                    </div>
+                    <div class="message-time">الآن</div>
+                </div>
+                <div class="quick-replies">
+                    <div class="quick-reply" onclick="sendQuickReply('كيف أبدأ تعلم الإنجليزية؟')">كيف أبدأ تعلم الإنجليزية؟</div>
+                    <div class="quick-reply" onclick="sendQuickReply('أريد تعلم القواعد الأساسية')">أريد تعلم القواعد الأساسية</div>
+                    <div class="quick-reply" onclick="sendQuickReply('أحتاج مساعدة في النطق')">أحتاج مساعدة في النطق</div>
+                </div>
+            `;
+        });
+
+        // وضع ملء الشاشة
+        document.getElementById('fullscreenBtn').addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                this.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                document.exitFullscreen();
+                this.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        });
+
+        // تبديل السمة
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('light-theme');
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('light-theme')) {
+                icon.className = 'fas fa-moon';
+            } else {
+                icon.className = 'fas fa-sun';
+            }
+        });
+
+        // إضافة أنماط للوضع الفاتح
+        const style = document.createElement('style');
+        style.textContent = `
+            body.light-theme {
+                --deep-space: #f0f0f0;
+                --cosmic-purple: #ffffff;
+                --stardust: #333333;
+                --galaxy-gradient: linear-gradient(135deg, #f0f0f0 0%, #ffffff 50%, #e6e6e6 100%);
+                background: var(--galaxy-gradient);
+                color: var(--stardust);
+            }
+            
+            body.light-theme .chat-container {
+                background: rgba(255, 255, 255, 0.9);
+                border: 1px solid rgba(0, 0, 0, 0.1);
+            }
+            
+            body.light-theme .message-input {
+                background: rgba(0, 0, 0, 0.05);
+                color: #333333;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
