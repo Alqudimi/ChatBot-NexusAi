@@ -748,6 +748,54 @@
             50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8); }
             100% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.5); }
         }
+        /* تحسين تصميم أزرار التحكم لاستيعاب الزر الجديد */
+.control-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--stardust);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    position: relative;
+    overflow: hidden;
+}
+
+.control-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.control-btn:hover::before {
+    left: 100%;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: var(--neon-cyan);
+}
+
+/* تأثير خاص لزر تحويل النص إلى صوت */
+#textToSpeechBtn:hover {
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+}
+
+#textToSpeechBtn:hover i {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 10px var(--neon-cyan);
+}
     </style>
 </head>
 <body>
@@ -788,6 +836,8 @@
     <div class="chat-container">
         <!-- رأس الشات -->
         <div class="chat-header">
+            <!-- إضافة هذا الزر مع أزرار التحكم الأخرى -->
+
             <div class="bot-info">
                 <div class="bot-avatar">
                     <i class="fas fa-graduation-cap"></i>
@@ -805,6 +855,9 @@
                 <button class="control-btn" id="settingsBtn"><i class="fas fa-cog"></i></button>
                 <button class="control-btn" id="clearChat"><i class="fas fa-trash"></i></button>
                 <button class="control-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></button>
+                <button class="control-btn" id="textToSpeechBtn" title="تحويل النص إلى صوت">
+    <i class="fas fa-volume-up"></i>
+</button>
             </div>
         </div>
 
@@ -865,6 +918,13 @@
         let audioElement = null;
         let isSpeaking = false;
         let speechQueue = [];
+        
+        // الانتقال إلى صفحة تحويل النص إلى صوت
+document.getElementById('textToSpeechBtn').addEventListener('click', function() {
+    // يمكنك تغيير الرابط حسب اسم الصفحة التي ستقوم بإنشائها
+    window.open('/text-to-speec', '_blank');
+    // أو استخدام: window.location.href = '/text-to-speech.html';
+});
 
         // بدء التطبيق
         document.addEventListener('DOMContentLoaded', function() {

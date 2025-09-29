@@ -1,21 +1,61 @@
 import asyncio
-import os
 import json
-import tempfile
+import logging
+import os
 import random
-from pathlib import Path
+import tempfile
+import uuid
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
-import google.generativeai as genai
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
-from pydantic import BaseModel
+import aiofiles
+import google.generativeai as genai
 import uvicorn
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException, Response
 from dotenv import load_dotenv
-import re
+from fastapi import (
+    BackgroundTasks,
+    FastAPI,
+    File,
+    HTTPException,
+    Response,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
+)
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from gtts import gTTS
+from pydantic import BaseModel
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class TTSRequest(BaseModel):
+    text: str
+    quality: str = "high"
+    speed: float = 1.0
+    pitch: float = 1.0
+
+class TTSResponse(BaseModel):
+    success: bool
+    audio_url: str
+    file_name: str
+    duration: str = None
+    file_size: str = None
+    message: str = None
+
+class HealthResponse(BaseModel):
+    status: str
+    timestamp: str
+    audio_files_count: int
+
+# إعدادات التطبيق
+AUDIO_DIR = "audio_files"
+MAX_TEXT_LENGTH = 5000
+SUPPORTED_LANGUAGES = ['en']
+os.makedirs(AUDIO_DIR, exist_ok=True)
 # Initialize FastAPI app
 load_dotenv()
 app = FastAPI(title="تكنو - مساعد تعليم اللغة الإنجليزية", version="1.0.0")
@@ -124,7 +164,31 @@ def initialize_gemini_model():
         print(f"Error initializing Gemini model: {e}")
         return None
 
-
+async def periodic_audio_cleanup():
+    
+    while True:
+        try:
+            await asyncio.sleep(0.5 * 60 * 60)  
+            
+            logger.info("بدء المسح الدوري للملفات الصوتية...")
+            
+            current_time = datetime.now()
+            deleted_files = 0
+            
+            # مسح جميع الملفات الصوتية في المجلد
+            for file_path in Path(AUDIO_DIR).glob("*.mp3"):
+                try:
+                    os.remove(file_path)
+                    deleted_files += 1
+                    logger.info(f"تم حذف الملف: {file_path.name}")
+                except Exception as e:
+                    logger.error(f"خطأ في حذف الملف {file_path.name}: {e}")
+            
+            logger.info(f"اكتمل المسح الدوري. تم حذف {deleted_files} ملف")
+            
+        except Exception as e:
+            logger.error(f"خطأ في المهمة الدورية: {e}")
+            await asyncio.sleep(60)
 
 def remove_markdown_formatting(text: str) -> str:
     """
@@ -155,6 +219,71 @@ def remove_markdown_formatting(text: str) -> str:
     text = re.sub(r'\s+', ' ', text).strip()
     
     return text
+
+def contains_english_text(text: str) -> bool:
+    """التحقق من أن النص يحتوي على أحرف إنجليزية"""
+    import re
+    # البحث عن أي حرف إنجليزي (a-z, A-Z)
+    english_pattern = re.compile(r'[a-zA-Z]')
+    return bool(english_pattern.search(text))
+
+def format_file_size(size_bytes: int) -> str:
+    """تنسيق حجم الملف إلى صيغة مقروءة"""
+    if size_bytes == 0:
+        return "0 B"
+    
+    size_names = ["B", "KB", "MB", "GB"]
+    i = 0
+    while size_bytes >= 1024 and i < len(size_names) - 1:
+        size_bytes /= 1024.0
+        i += 1
+        
+    return f"{size_bytes:.2f} {size_names[i]}"
+
+def estimate_audio_duration(text: str, speed: float = 1.0) -> str:
+    """تقدير مدة الملف الصوتي (تقريبي)"""
+    # متوسط سرعة الكلام: 150 كلمة في الدقيقة
+    words = len(text.split())
+    base_duration_seconds = (words / 150) * 60  # تحويل إلى ثواني
+    
+    # تعديل المدة بناءً على السرعة
+    adjusted_duration = base_duration_seconds / speed
+    
+    # تنسيق المدة
+    minutes = int(adjusted_duration // 60)
+    seconds = int(adjusted_duration % 60)
+    
+    if minutes > 0:
+        return f"{minutes}:{seconds:02d}"
+    else:
+        return f"0:{seconds:02d}"
+
+def cleanup_old_files(hours_old: int = 24):
+    """تنظيف الملفات القديمة (اختياري)"""
+    try:
+        current_time = datetime.now().timestamp()
+        for file_path in Path(AUDIO_DIR).glob("*.mp3"):
+            file_age = current_time - file_path.stat().st_mtime
+            if file_age > hours_old * 3600:  # تحويل الساعات إلى ثواني
+                file_path.unlink()
+                logger.info(f"Cleaned up old file: {file_path.name}")
+    except Exception as e:
+        logger.error(f"Error during cleanup: {e}")
+
+def get_server_uptime() -> str:
+    """الحصول على مدة تشغيل الخادم (مبسط)"""
+    # في تطبيق حقيقي، يمكنك استخدام psutil أو حفظ وقت البدء
+    return "غير متاح في وضع التطوير"
+
+# معالجة الأخطاء العامة
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    logger.error(f"Global error handler: {str(exc)}")
+    return JSONResponse(
+        status_code=500,
+        content={"success": False, "message": "حدث خطأ داخلي في الخادم"}
+    )
+
 
 def get_gemini_response(user_message: str, conversation) -> str:
     """Get response from Gemini API with error handling"""
@@ -196,6 +325,18 @@ async def read_root2():
         content=html_content,
         media_type="text/html; charset=utf-8"
     )
+    
+    
+@app.get("/text-to-speec")
+async def text_to_speec():
+    
+    with open("text-to-speec.html", "r", encoding="utf-8") as f:
+        html_content = f.read()
+    
+    return Response(
+        content=html_content,
+        media_type="text/html; charset=utf-8"
+    )    
 
 @app.post("/api/voice-chat", response_model=VoiceChatResponse)
 async def voice_chat_endpoint(audio: UploadFile = File(...)):
@@ -315,6 +456,125 @@ async def chat_endpoint(chat_message: ChatMessage):
         print(f"Chat endpoint error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@app.post("/api/tts", response_model=TTSResponse)
+async def convert_text_to_speech(request: TTSRequest, background_tasks: BackgroundTasks):
+    """تحويل النص الإنجليزي إلى صوت"""
+    
+    # التحقق من صحة النص
+    if not request.text.strip():
+        raise HTTPException(status_code=400, detail="النص لا يمكن أن يكون فارغاً")
+    
+    if len(request.text) > MAX_TEXT_LENGTH:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"النص طويل جداً. الحد الأقصى هو {MAX_TEXT_LENGTH} حرف"
+        )
+    
+    # التحقق من أن النص باللغة الإنجليزية
+    if not contains_english_text(request.text):
+        raise HTTPException(
+            status_code=400, 
+            detail="يجب أن يحتوي النص على أحرف إنجليزية"
+        )
+    
+    try:
+        # إنشاء اسم فريد للملف
+        file_id = str(uuid.uuid4())
+        filename = f"tts_{file_id}.mp3"
+        file_path = os.path.join(AUDIO_DIR, filename)
+        
+        # إعداد معلمات gTTS
+        tts_params = {
+            'text': request.text,
+            'lang': 'en',
+            'slow': False
+        }
+        
+        # ضبط السرعة (إذا كانت مدعومة)
+        # ملاحظة: gTTS لا يدعم ضبط السرعة مباشرة، لكننا نضبطها في الواجهة
+        if request.speed < 0.8:
+            tts_params['slow'] = True
+        
+        logger.info(f"Converting text to speech: {request.text[:100]}...")
+        
+        # إنشاء كائن gTTS وتحويل النص إلى صوت
+        tts = gTTS(**tts_params)
+        
+        # حفظ الملف الصوتي
+        tts.save(file_path)
+        
+        # الحصول على معلومات الملف
+        file_size = os.path.getsize(file_path)
+        file_size_str = format_file_size(file_size)
+        
+        # تقدير المدة (تقريبي)
+        duration_estimate = estimate_audio_duration(request.text, request.speed)
+        
+        # إنشاء رابط للوصول إلى الملف
+        audio_url = f"/audio/{filename}"
+        
+        # جدولة تنظيف الملف بعد فترة (اختياري)
+        # background_tasks.add_task(cleanup_old_files)
+        
+        logger.info(f"Successfully converted text to speech: {filename}")
+        
+        return TTSResponse(
+            success=True,
+            audio_url=audio_url,
+            file_name=filename,
+            duration=duration_estimate,
+            file_size=file_size_str,
+            message="تم تحويل النص إلى صوت بنجاح"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error converting text to speech: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"حدث خطأ أثناء تحويل النص إلى صوت: {str(e)}"
+        )
+
+@app.get("/audio/{filename}")
+async def get_audio_file(filename: str):
+    """خدمة للحصول على الملفات الصوتية"""
+    
+    # التحقق من صحة اسم الملف
+    if not filename.endswith('.mp3'):
+        raise HTTPException(status_code=400, detail="نوع الملف غير مدعوم")
+    
+    file_path = os.path.join(AUDIO_DIR, filename)
+    
+    # التحقق من وجود الملف
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="الملف غير موجود")
+    
+    # التحقق من أن الملف ضمن المجلد المسموح به
+    print(file_path)
+    
+    return FileResponse(
+        path=file_path,
+        media_type='audio/mpeg',
+        filename=f"converted_{filename}"
+    )
+
+@app.delete("/api/audio/{filename}")
+async def delete_audio_file(filename: str):
+    """حذف ملف صوتي"""
+    
+    file_path = os.path.join(AUDIO_DIR, filename)
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="الملف غير موجود")
+    
+    try:
+        os.remove(file_path)
+        logger.info(f"Deleted audio file: {filename}")
+        return {"success": True, "message": "تم حذف الملف بنجاح"}
+    except Exception as e:
+        logger.error(f"Error deleting file {filename}: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء حذف الملف")
+
+
 @app.get("/health")
 async def health_check():
     """Enhanced health check endpoint"""
@@ -350,6 +610,8 @@ async def startup_event():
     """Initialize Gemini model on startup"""
     print("جاري تهيئة نموذج Gemini...")
     model = initialize_gemini_model()
+    asyncio.create_task(periodic_audio_cleanup())
+    logger.info("تم بدء مهمة المسح الدوري للملفات الصوتية (كل 12 ساعة)")
     if model:
         print("✅ تم تهيئة نموذج Gemini بنجاح")
     else:

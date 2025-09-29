@@ -8,3 +8,4 @@ pathlib2
 google-generativeai
 aiofiles
 python-dateutil
+gtts

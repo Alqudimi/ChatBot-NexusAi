@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تكنو - محول النص إلى صوت</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-cyan: #0ff0fc;
+            --neon-pink: #ff00ff;
+            --neon-purple: #8a2be2;
+            --deep-space: #0a0a1f;
+            --cosmic-purple: #1a1a2e;
+            --stardust: #e6e6ff;
+            --galaxy-gradient: linear-gradient(135deg, #0a0a1f 0%, #1a1a2e 50%, #16213e 100%);
+            --nebula-gradient: linear-gradient(45deg, #ff00ff, #8a2be2, #0ff0fc);
+            --pulse-animation: pulse 2s infinite;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: var(--galaxy-gradient);
+            min-height: 100vh;
+            color: var(--stardust);
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.8;
+            text-align: right;
+            font-feature-settings: "calt" 1;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(138, 43, 226, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: rgba(10, 10, 31, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            box-shadow: 
+                0 0 30px rgba(255, 0, 255, 0.2),
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--nebula-gradient);
+            opacity: 0.1;
+            animation: rotate 30s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .header {
+            background: rgba(26, 26, 46, 0.8);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--nebula-gradient);
+            animation: slide 3s linear infinite;
+        }
+        
+        @keyframes slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .app-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .app-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--nebula-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .app-logo::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: var(--nebula-gradient);
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.7;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(5deg); }
+            66% { transform: translateY(5px) rotate(-5deg); }
+        }
+        
+        .app-logo i {
+            font-size: 28px;
+            color: white;
+        }
+        
+        .app-name {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--nebula-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+        }
+        
+        .app-status {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--neon-cyan);
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            margin-left: 8px;
+            box-shadow: 0 0 10px var(--neon-cyan);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--stardust);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.03) 0%, transparent 50%);
+        }
+        
+        .input-section {
+            background: rgba(26, 26, 46, 0.6);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .input-label {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-label i {
+            margin-left: 10px;
+        }
+        
+        .text-input {
+            width: 100%;
+            min-height: 150px;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            color: var(--stardust);
+            font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+            direction: ltr;
+            resize: vertical;
+        }
+        
+        .text-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 2px rgba(255, 0, 255, 0.3);
+        }
+        
+        .settings-section {
+            background: rgba(26, 26, 46, 0.6);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .setting-group {
+            margin-bottom: 15px;
+        }
+        
+        .setting-label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--stardust);
+        }
+        
+        .setting-select, .setting-range {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px 15px;
+            color: var(--stardust);
+            font-size: 14px;
+            outline: none;
+            backdrop-filter: blur(5px);
+        }
+        
+        .setting-select:focus, .setting-range:focus {
+            box-shadow: 0 0 0 2px rgba(255, 0, 255, 0.3);
+        }
+        
+        .setting-range {
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+        
+        .setting-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--nebula-gradient);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+        }
+        
+        .range-value {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+            color: var(--neon-cyan);
+        }
+        
+        .output-section {
+            background: rgba(26, 26, 46, 0.6);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .audio-player {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+        
+        .audio-visualizer {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .audio-bar {
+            width: 8px;
+            background: var(--nebula-gradient);
+            border-radius: 4px;
+            transition: height 0.1s ease;
+        }
+        
+        .audio-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .audio-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: var(--nebula-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 0, 255, 0.3);
+            font-size: 20px;
+        }
+        
+        .audio-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 0, 255, 0.5);
+        }
+        
+        .audio-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #00cc00, #00ff00);
+        }
+        
+        .download-btn:hover {
+            box-shadow: 0 8px 25px rgba(0, 255, 0, 0.5);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 15px;
+            background: var(--nebula-gradient);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(255, 0, 255, 0.3);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 0, 255, 0.5);
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--neon-cyan);
+            backdrop-filter: blur(10px);
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification i {
+            margin-left: 10px;
+            color: var(--neon-cyan);
+        }
+        
+        .notification.error {
+            border-left-color: #ff6b6b;
+        }
+        
+        .notification.error i {
+            color: #ff6b6b;
+        }
+        
+        .notification.success {
+            border-left-color: #00cc00;
+        }
+        
+        .notification.success i {
+            color: #00cc00;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--neon-cyan);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* تأثيرات دخول الصفحة */
+        .welcome-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--galaxy-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .welcome-logo {
+            font-size: 70px;
+            margin-bottom: 20px;
+            background: var(--nebula-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: bounce 1.5s ease infinite alternate;
+            text-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-20px) scale(1.05); }
+        }
+        
+        .welcome-text {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.6;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .loading-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            background: var(--nebula-gradient);
+            width: 0%;
+            animation: loading 2s ease-in-out forwards;
+        }
+        
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        /* تأثيرات الجسيمات */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: particle-float 10s infinite linear;
+        }
+        
+        @keyframes particle-float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        /* أنماط للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .app-logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .app-name {
+                font-size: 20px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .input-section, .settings-section, .output-section {
+                padding: 15px;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-logo {
+                font-size: 50px;
+            }
+            
+            .welcome-text {
+                font-size: 18px;
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- تأثير النجوم -->
+    <div class="stars" id="starsContainer"></div>
+    
+    <!-- تأثير الجسيمات -->
+    <div class="particles" id="particlesContainer"></div>
+    
+    <!-- رسالة ترحيب مع تأثيرات دخول -->
+    <div class="welcome-animation" id="welcomeAnimation">
+        <div class="welcome-logo">
+            <i class="fas fa-volume-up"></i>
+        </div>
+        <h2 class="welcome-text">تكنو - محول النص إلى صوت</h2>
+        <p>جاري تهيئة النظام...</p>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+
+    <!-- إشعارات -->
+    <div class="notification" id="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notificationText">رسالة الإشعار</span>
+    </div>
+
+    <!-- الحاوية الرئيسية -->
+    <div class="container">
+        <!-- رأس التطبيق -->
+        <div class="header">
+            <div class="app-info">
+                <div class="app-logo">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+                <div>
+                    <h3 class="app-name">تكنو - محول النص إلى صوت</h3>
+                    <div class="app-status">
+                        <span class="status-dot"></span>
+                        <span id="statusText">جاهز للتحويل</span>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" id="themeToggle"><i class="fas fa-palette"></i></button>
+                <button class="control-btn" id="settingsBtn"><i class="fas fa-cog"></i></button>
+                <button class="control-btn" id="clearBtn"><i class="fas fa-trash"></i></button>
+                <button class="control-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></button>
+                <button class="control-btn" id="Chatbot" title="فتح شات بوت">
+    <i class="fas fa-robot"></i>
+</button>
+            </div>
+        </div>
+
+        <!-- محتوى التطبيق -->
+        <div class="content">
+            <!-- قسم إدخال النص -->
+            <div class="input-section">
+                <div class="input-label">
+                    <i class="fas fa-keyboard"></i>
+                    <span>أدخل النص الإنجليزي للتحويل إلى صوت</span>
+                </div>
+                <textarea class="text-input" id="textInput" placeholder="Type your English text here..."></textarea>
+                <div class="action-buttons">
+                    <button class="action-btn secondary-btn" id="clearTextBtn">
+                        <i class="fas fa-eraser"></i>
+                        مسح النص
+                    </button>
+                    <button class="action-btn" id="convertBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        تحويل النص إلى صوت
+                    </button>
+                </div>
+            </div>
+
+            <!-- قسم الإعدادات -->
+            <div class="settings-section">
+                <div class="input-label">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>إعدادات الصوت</span>
+                </div>
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <div class="setting-label">الجودة</div>
+                        <select class="setting-select" id="qualitySelect">
+                            <option value="standard">قياسي</option>
+                            <option value="high" selected>عالية</option>
+                            <option value="premium">ممتازة</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <div class="setting-label">السرعة</div>
+                        <input type="range" class="setting-range" id="speedRange" min="0.5" max="2" step="0.1" value="1">
+                        <div class="range-value" id="speedValue">1.0x</div>
+                    </div>
+                    <div class="setting-group">
+                        <div class="setting-label">درجة الصوت</div>
+                        <input type="range" class="setting-range" id="pitchRange" min="0.5" max="2" step="0.1" value="1">
+                        <div class="range-value" id="pitchValue">1.0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم الإخراج -->
+            <div class="output-section">
+                <div class="input-label">
+                    <i class="fas fa-music"></i>
+                    <span>معاينة وتحميل الصوت</span>
+                </div>
+                <div class="audio-player" id="audioPlayer">
+                    <div class="audio-visualizer" id="audioVisualizer">
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                    </div>
+                    <div class="audio-controls">
+                        <button class="audio-btn" id="playBtn" disabled>
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="audio-btn" id="pauseBtn" disabled>
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button class="audio-btn" id="stopBtn" disabled>
+                            <i class="fas fa-stop"></i>
+                        </button>
+                        <button class="audio-btn download-btn" id="downloadBtn" disabled>
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                    <div id="audioInfo" class="text-center">
+                        <p>سيظهر الصوت المحول هنا بعد الانتهاء من المعالجة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // متغيرات عامة
+        let audioElement = null;
+        let isPlaying = false;
+        let audioUrl = null;
+        let audioFileName = "converted_audio.mp3";
+        let audioVisualizerInterval = null;
+        // الانتقال إلى صفحة تحويل النص إلى صوت
+document.getElementById('Chatbot').addEventListener('click', function() {
+    // يمكنك تغيير الرابط حسب اسم الصفحة التي ستقوم بإنشائها
+    window.open('/', '_blank');
+    // أو استخدام: window.location.href = '/text-to-speech.html';
+});
+
+        // بدء التطبيق
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('welcomeAnimation').style.display = 'none';
+                createStars();
+                createParticles();
+                
+                // اختبار الاتصال بالخادم
+                testServerConnection();
+            }, 3000);
+        });
+
+        // اختبار الاتصال بالخادم
+        async function testServerConnection() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                console.log('✅ اتصال الخادم:', data);
+                
+                // تحديث حالة الخادم في الواجهة
+                const statusElement = document.getElementById('statusText');
+                if (statusElement && data.status === 'healthy') {
+                    statusElement.textContent = 'متصل - جاهز للتحويل';
+                }
+            } catch (error) {
+                console.error('❌ خطأ في الاتصال بالخادم:', error);
+                const statusElement = document.getElementById('statusText');
+                if (statusElement) {
+                    statusElement.textContent = 'غير متصل - تحقق من الاتصال بالخادم';
+                    statusElement.style.color = '#ff6b6b';
+                }
+                showNotification('خطأ في الاتصال بالخادم', 'error');
+            }
+        }
+
+        // إنشاء النجوم
+        function createStars() {
+            const starsContainer = document.getElementById('starsContainer');
+            for(let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 5 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // إنشاء الجسيمات
+        function createParticles() {
+            const particlesContainer = document.getElementById('particlesContainer');
+            for(let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // تحويل النص إلى صوت
+        async function convertTextToSpeech() {
+            const textInput = document.getElementById('textInput');
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                showNotification('يرجى إدخال نص للتحويل', 'error');
+                return;
+            }
+            
+            // التحقق من أن النص باللغة الإنجليزية
+            const englishPattern = /[a-zA-Z]/;
+            if (!englishPattern.test(text)) {
+                showNotification('يرجى إدخال نص باللغة الإنجليزية فقط', 'error');
+                return;
+            }
+            
+            // عرض حالة التحويل
+            const convertBtn = document.getElementById('convertBtn');
+            const originalText = convertBtn.innerHTML;
+            convertBtn.innerHTML = '<span class="loading"></span> جاري التحويل...';
+            convertBtn.disabled = true;
+            
+            // إعدادات الصوت
+            const quality = document.getElementById('qualitySelect').value;
+            const speed = document.getElementById('speedRange').value;
+            const pitch = document.getElementById('pitchRange').value;
+            
+            try {
+                const response = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        quality: quality,
+                        speed: speed,
+                        pitch: pitch
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // إنشاء رابط للصوت
+                audioUrl = data.audio_url;
+                audioFileName = data.file_name || "converted_audio.mp3";
+                
+                // إنشاء عنصر صوت
+                if (audioElement) {
+                    audioElement.pause();
+                    audioElement = null;
+                }
+                
+                audioElement = new Audio(audioUrl);
+                
+                // تمكين أزرار التحكم
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('downloadBtn').disabled = false;
+                
+                // تحديث معلومات الصوت
+                document.getElementById('audioInfo').innerHTML = `
+                    <p>تم تحويل النص إلى صوت بنجاح</p>
+                    <p>مدة الصوت: ${data.duration || 'غير معروف'}</p>
+                    <p>حجم الملف: ${data.file_size || 'غير معروف'}</p>
+                `;
+                
+                // بدء تشغيل الصوت تلقائياً
+                playAudio();
+                
+                showNotification('تم تحويل النص إلى صوت بنجاح', 'success');
+                
+            } catch (error) {
+                console.error('❌ خطأ في تحويل النص إلى صوت:', error);
+                showNotification('حدث خطأ أثناء تحويل النص إلى صوت', 'error');
+            } finally {
+                // استعادة حالة الزر
+                convertBtn.innerHTML = originalText;
+                convertBtn.disabled = false;
+            }
+        }
+
+        // تشغيل الصوت
+        function playAudio() {
+            if (!audioElement) return;
+            
+            audioElement.play().then(() => {
+                isPlaying = true;
+                document.getElementById('playBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = false;
+                
+                // بدء تحريك المؤشر البصري
+                startAudioVisualizer();
+                
+                // تحديث حالة التشغيل عند انتهاء الصوت
+                audioElement.onended = function() {
+                    isPlaying = false;
+                    document.getElementById('playBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
+                    stopAudioVisualizer();
+                };
+            }).catch(error => {
+                console.error('❌ خطأ في تشغيل الصوت:', error);
+                showNotification('حدث خطأ أثناء تشغيل الصوت', 'error');
+            });
+        }
+
+        // إيقاف الصوت مؤقتاً
+        function pauseAudio() {
+            if (!audioElement || !isPlaying) return;
+            
+            audioElement.pause();
+            isPlaying = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            stopAudioVisualizer();
+        }
+
+        // إيقاف الصوت
+        function stopAudio() {
+            if (!audioElement) return;
+            
+            audioElement.pause();
+            audioElement.currentTime = 0;
+            isPlaying = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            stopAudioVisualizer();
+        }
+
+        // تحميل الصوت
+        function downloadAudio() {
+            if (!audioUrl) {
+                showNotification('لا يوجد صوت للتحميل', 'error');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.href = audioUrl;
+            link.download = audioFileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('جاري تحميل الملف...', 'success');
+        }
+
+        // بدء المؤشر البصري للصوت
+        function startAudioVisualizer() {
+            const visualizer = document.getElementById('audioVisualizer');
+            const bars = visualizer.querySelectorAll('.audio-bar');
+            
+            stopAudioVisualizer();
+            
+            audioVisualizerInterval = setInterval(() => {
+                bars.forEach(bar => {
+                    const height = Math.floor(Math.random() * 80) + 10;
+                    bar.style.height = height + 'px';
+                });
+            }, 100);
+        }
+
+        // إيقاف المؤشر البصري للصوت
+        function stopAudioVisualizer() {
+            if (audioVisualizerInterval) {
+                clearInterval(audioVisualizerInterval);
+                audioVisualizerInterval = null;
+                
+                const bars = document.querySelectorAll('.audio-bar');
+                bars.forEach(bar => {
+                    bar.style.height = '10px';
+                });
+            }
+        }
+
+        // عرض الإشعارات
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = 'notification';
+            
+            if (type === 'error') {
+                notification.classList.add('error');
+                notification.querySelector('i').className = 'fas fa-exclamation-triangle';
+            } else if (type === 'success') {
+                notification.classList.add('success');
+                notification.querySelector('i').className = 'fas fa-check-circle';
+            } else {
+                notification.querySelector('i').className = 'fas fa-info-circle';
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // مسح النص
+        function clearText() {
+            document.getElementById('textInput').value = '';
+            showNotification('تم مسح النص', 'success');
+        }
+
+        // إعدادات السرعة
+        document.getElementById('speedRange').addEventListener('input', function() {
+            document.getElementById('speedValue').textContent = this.value + 'x';
+        });
+
+        // إعدادات درجة الصوت
+        document.getElementById('pitchRange').addEventListener('input', function() {
+            document.getElementById('pitchValue').textContent = this.value;
+        });
+
+        // إضافة المستمعين للأحداث
+        document.getElementById('convertBtn').addEventListener('click', convertTextToSpeech);
+        document.getElementById('clearTextBtn').addEventListener('click', clearText);
+        document.getElementById('playBtn').addEventListener('click', playAudio);
+        document.getElementById('pauseBtn').addEventListener('click', pauseAudio);
+        document.getElementById('stopBtn').addEventListener('click', stopAudio);
+        document.getElementById('downloadBtn').addEventListener('click', downloadAudio);
+        document.getElementById('clearBtn').addEventListener('click', clearText);
+
+        // زر السمة - للتبديل بين السمات (يمكن تطويره لاحقاً)
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            showNotification('ميزة تبديل السمة قيد التطوير', 'info');
+        });
+
+        // زر الإعدادات
+        document.getElementById('settingsBtn').addEventListener('click', function() {
+            showNotification('الإعدادات المتقدمة قيد التطوير', 'info');
+        });
+
+        // زر ملء الشاشة
+        document.getElementById('fullscreenBtn').addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`خطأ في تفعيل وضع ملء الشاشة: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
