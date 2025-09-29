@@ -9,3 +9,4 @@ google-generativeai
 aiofiles
 python-dateutil
 gtts
+uvicorn[standard]
